@@ -1,0 +1,32 @@
+.section {
+    width: 100%;
+    height: 20vw;
+    display: flex;
+}
+
+#BioSect {
+    /* background-color: #ffa01e; */
+}
+
+.Pic {
+    border: 5px solid black;
+    border-radius: 26px;
+    width: 20%;
+    height: 80%;
+    margin-top: 2%;
+    margin-left: 1%;
+}
+
+.Text {
+    width: 60%;
+    height: 80%;
+    border-radius: 26px;
+    margin-top: 2%;
+    margin-left: 10%;
+    padding-top: 2%;
+    padding-left: 3%;
+}
+
+#ProjSect {
+    /* background-color: #ffc678; */
+}

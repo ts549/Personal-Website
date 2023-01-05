@@ -1,0 +1,34 @@
+.Navbar {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 10%;
+    list-style: none;
+    column-gap: 30px;
+}
+
+.NavElement {
+    text-decoration: none;
+    color: black;
+}
+
+li {
+    height: 50%;
+    padding-top: 10px;
+}
+
+.NavContact {
+    text-decoration: none;
+    color: black;
+    vertical-align: middle;
+}
+
+#ContactMe {
+    margin-left: 50%;
+    width: 100px;
+    height: 40px;
+    text-align: center;
+    background-color: antiquewhite;
+    border-radius: 100px;
+    padding-top: 10px;
+}
