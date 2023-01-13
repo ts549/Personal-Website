@@ -11,7 +11,7 @@ function Home() {
                 <div className="Introduction">
                     <div className="NameSkillsWrapper">
                         <div className="Name">
-                            Hi! My name <br/> is <span>Tao Sun</span>
+                            <b>Hi! My name <br/> is <span>Tao Sun</span></b>
                         </div>
                         <div className="Skills">
                             <div className="Skill">Java</div>

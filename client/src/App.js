@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Home from './pages/Home/Home';
+import Home2 from './pages/Home2/Home2';
+import Projects from './pages/Projects/Projects';
 
 function App() {
   
@@ -29,7 +31,10 @@ function App() {
           </div>
         } />
         <Route path="/Home" element={
-          <Home />
+          <Home2 />
+        } />
+        <Route path="/Projects" element={
+          <Projects />
         } />
       </Routes>
     </BrowserRouter>

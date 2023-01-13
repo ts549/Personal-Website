@@ -1,0 +1,143 @@
+#home_content {
+    position: absolute;
+    z-index: 9;
+    width: 100vw;
+    height: 100px;
+}
+
+#home_nav {
+    width: 100vw;
+    height: 100px;
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    column-gap: 30px;
+    margin-left: 50px;
+    margin-top: 20px;
+    padding-left: 20%;
+}
+
+.home_nav_e {
+    text-decoration: none;
+    color: white;
+}
+
+#bgd_wrapper {
+    position: absolute;
+}
+
+.home_sect {
+    width: 100vw;
+    height: 590px;
+    border-bottom-color: #B9732F;
+    border-bottom-style: solid;
+}
+
+.bgd_1 {
+    width: 100%;
+    height: 100%;
+}
+
+.blue_triangle {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 0px 0px 60vh 60vw;
+    border-color: transparent transparent transparent #6daffe;
+}
+
+#contact_me {
+    margin-top: 5px;
+    margin-left: 35%;
+    width: 110px;
+    height: 35px;
+    border-color: #B9732F;
+    border-width: 2px;
+    border-style: solid;
+    justify-content: center;
+    padding-top: 10px;
+    padding-left: 25px;
+}
+
+#home_nav_cm {
+    text-decoration: none;
+    color: #B9732F;
+}
+
+#intro {
+    display: flex;
+    flex-direction: row;
+    height: 370px;
+}
+
+#pfp {
+    width: 250px;
+    height: 280px;
+    background-color: #B9732F;
+    margin-left: 23.8%;
+}
+
+#name_skills_wrapper {
+    width: 250px;
+    height: 280px;
+    padding-left: 30px;
+    padding-top: 40px;
+}
+
+#name {
+    font-size: 6mm;
+}
+
+#skills {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: row;
+    column-gap: 10px;
+    row-gap: 10px;
+    width: 200px;
+    flex-wrap: wrap;
+}
+
+.skill {
+    width: auto;
+    height: 30px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 10px;
+    background-color: #B9732F;
+}
+
+.home_pic {
+    width: 440px;
+    height: 220px;
+    margin-left: 30%;
+    background-color: #B9732F
+}
+
+.home_desc {
+    width: 100%;
+    height: 304px;
+}
+
+.desc_header {
+    margin-top: 60px;
+    margin-left: 310px;
+    font-size: 10mm;
+    width: 250px;
+}
+
+.desc_header::after {
+    content:"";
+    width:100%;
+    height:3px;
+    z-index:9;
+    background:linear-gradient(to right, #437fc7 50%, #edf6ff 50%);
+    display: block;
+}
+
+.desc_content {
+    margin-top: 50px;
+    margin-left: 310px;
+    width: 600px;
+    font-size: 6mm;
+}

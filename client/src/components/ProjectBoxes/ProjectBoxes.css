@@ -1,0 +1,53 @@
+.ProjectBoxes {
+    display: flex;
+    width: 80%;
+    height: 100%;
+    column-gap: 10px;
+    margin-left: 100px;
+    margin-top: 50px;
+    flex-wrap: wrap;
+    row-gap: 10px;
+    position: absolute;
+    z-index: 9;
+}
+
+.ProjectBox {
+    width: 320px;
+    height: 320px;
+}
+
+.ProjectBox::after {
+    background-color: gray;
+    content: '\A';
+    width: 300px;
+    height: 300px;
+    display: block;
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+.ProjectBox:hover::after {
+    margin-left: 0px;
+    margin-top: 0px;
+    cursor: pointer;
+}
+
+.ShadowBoxes {
+    position: absolute;
+    display: flex;
+    width: 80%;
+    height: 100%;
+    column-gap: 10px;
+    margin-left: 100px;
+    margin-top: 50px;
+    flex-wrap: wrap;
+    row-gap: 10px;
+}
+
+.ShadowBox {
+    background-color: black;
+    width: 300px;
+    height: 300px;
+    margin-left: 20px;
+    margin-top: 20px;
+}

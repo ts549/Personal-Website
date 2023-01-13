@@ -8,8 +8,8 @@ function Overview() {
             <div id="BioSect" className="section">
                 <div className="Pic"></div>
                 <div className="Text">
-                    About Me <br/>
-                    My name is Tao Sun and I'm a Junior studying Computer Science as well as Mathematics at Purdue University. I'm <br/> <a href="/AboutMe">Read More...</a>
+                    I'm a Computer Science student passionate about machine learning 
+                    and software engineering!
                 </div>
                 <div className="ShadowCover">
                     <span className="ShadowText">About Me</span>
@@ -20,7 +20,8 @@ function Overview() {
             </div>
             <div id="ExpSect" className="section">
                 <div className="Text">
-                    Text Text Text Text <br/> <a href="/Experiences">Read More...</a>
+                    I've had the opportunity to experience multiple work settings 
+                    such as internships, research positions, clubs, etc.
                 </div>
                 <div className="Pic"></div>
                 <div className="ShadowCover">
@@ -33,7 +34,8 @@ function Overview() {
             <div id="ProjSect" className="section">
                 <div className="Pic"></div>
                 <div className="Text">
-                    Text Text Text Text <br/> <a href="/Projects">Read More...</a>
+                    I love working on personal projects, especially involving natural 
+                    langauge processing. Please look at some of my work!!
                 </div>
                 <div className="ShadowCover">
                     <span className="ShadowText">Projects</span>
@@ -44,7 +46,7 @@ function Overview() {
             </div>
             <div id="SkillsSect" className="section">
                 <div className="Text">
-                    Text Text Text Text <br/> <a href="AboutMe">Read More...</a>
+                    I've had experience with multiple languages, frameworks, technologies, etc.
                 </div>
                 <div className="Pic"></div>
                 <div className="ShadowCover">
