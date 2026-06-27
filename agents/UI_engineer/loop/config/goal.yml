@@ -1,0 +1,88 @@
+name: Update the landing page hero with a profile area and experience timeline
+
+description: >
+  Update the FIRST SCREEN (above-the-fold hero) of the landing page in
+  src/app/page.tsx. The left side already contains the existing hero content
+  (name, tagline, intro) — leave its core structure intact, but adjust its
+  layout to share the row with the new right-side column described below.
+
+  On the RIGHT side of the first screen, add two new elements stacked
+  vertically:
+
+  (1) A circular profile picture area at the top of the right column. It
+  should be a perfectly round container with a neutral placeholder (initials
+  or a generic avatar) sized appropriately relative to the hero copy on the
+  left. Include subtle styling (border ring, soft shadow, or accent glow)
+  consistent with the rest of the design.
+
+  (2) Directly underneath the profile picture, an experience TIMELINE that
+  scrolls horizontally (left → right) with the mouse wheel, trackpad, or
+  touch. Each timeline entry should show: company / role, dates (e.g.
+  "Jan 2023 — Present"), and a one-line summary. Use 4–5 placeholder
+  experiences. The timeline must:
+    - lay items out in a single horizontal row inside a scrollable container
+    - hide the default scrollbar but remain scrollable
+    - show a subtle gradient fade on the right edge to hint at more content
+    - be keyboard-accessible (focusable items, left/right arrow scrolling)
+
+  The two-column layout must be responsive: on small screens (md breakpoint
+  and below) the right column stacks below the hero copy, the timeline
+  remains horizontally scrollable, and the profile picture shrinks
+  appropriately. All other sections of the page (project squares, resume,
+  blogs) stay as they are — only the first screen / hero changes.
+
+  REQUIRED TEST HOOKS — every element below MUST carry the specified
+  data-testid attribute, or `role` / `aria-label` as noted, so the
+  Playwright verifier can find it. Missing hooks will cause the verifier
+  to fail this iteration:
+    - The profile picture container: data-testid="profile-avatar"
+    - Each timeline entry: data-testid="timeline-item"   (at least 4)
+    - The container holding the project squares: data-testid="projects-section"
+    - Each project square / card: data-testid="project-card"   (at least 4)
+    - The Resume section container: data-testid="resume-section"
+    - The Blogs section container: data-testid="blogs-section"
+    - Each blog post card: data-testid="blog-card"   (at least 2)
+    - The project modal root element: role="dialog"
+    - The modal close button: aria-label="Close"
+  Sections that already exist still need these data-testid attributes added.
+  Clicking a project-card MUST open the modal (verifier clicks the first
+  one and waits for role="dialog" to appear).
+
+environment: >
+  This is a Next.js 15 App Router project with TypeScript and Tailwind v4
+  already set up.
+  IMPORTANT: Tailwind v4 uses CSS-based config via @theme directives in
+  src/app/globals.css. There is NO tailwind.config.ts or tailwind.config.js
+  file, and you must NOT create one — doing so will break the build. To add
+  custom tokens (colors, fonts, spacing), edit the @theme block inside
+  src/app/globals.css.
+  The landing page already exists at src/app/page.tsx. A horizontally
+  scrolling timeline that responds to vertical wheel input requires a
+  client component ('use client') with an onWheel handler.
+  Use the list_files tool to discover the actual workspace structure before
+  assuming file layout.
+
+success_criteria:
+  - Build passes (npm run build)
+  - Lint passes (npm run lint)
+  - Hero section is laid out as two columns on md+ screens (existing copy on left, new column on right)
+  - A circular profile picture area is visible at the top of the right column
+  - A horizontal experience timeline is visible directly under the profile picture
+  - The timeline scrolls horizontally via mouse wheel / trackpad / touch
+  - The timeline shows a fade-out gradient on its right edge while more content is offscreen
+  - On small screens, the right column stacks below the hero copy and remains usable
+  - The other sections (project squares, resume, blogs) are unchanged
+  - All required test hooks (data-testid, role, aria-label) listed in the description are present in the rendered DOM
+  - Clicking a project card opens a modal (role="dialog") that can be closed via the aria-label="Close" button
+  - Visual similarity to the reference screenshots is at least 90% on every screen captured by the verifier
+
+constraints:
+  framework: Next.js 15 (App Router)
+  language: TypeScript
+  styling: Tailwind v4 (CSS-based config via @theme in src/app/globals.css)
+
+priorities:
+  - Build correctness
+  - Visual design (match design-spec.md where applicable)
+  - Accessibility (keyboard scrolling, focus states)
+  - Mobile responsiveness

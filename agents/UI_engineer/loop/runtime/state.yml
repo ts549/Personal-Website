@@ -1,0 +1,120 @@
+session_id: 4400d765-8bff-4e42-a19b-ac911dfec8b3
+started_at: 2026-06-26T23:12:25.593Z
+goal: >-
+  Update the landing page hero with a profile area and experience timeline
+
+
+  Update the FIRST SCREEN (above-the-fold hero) of the landing page in
+  src/app/page.tsx. The left side already contains the existing hero content
+  (name, tagline, intro) — leave its core structure intact, but adjust its
+  layout to share the row with the new right-side column described below.
+
+  On the RIGHT side of the first screen, add two new elements stacked
+  vertically:
+
+  (1) A circular profile picture area at the top of the right column. It should
+  be a perfectly round container with a neutral placeholder (initials or a
+  generic avatar) sized appropriately relative to the hero copy on the left.
+  Include subtle styling (border ring, soft shadow, or accent glow) consistent
+  with the rest of the design.
+
+  (2) Directly underneath the profile picture, an experience TIMELINE that
+  scrolls horizontally (left → right) with the mouse wheel, trackpad, or touch.
+  Each timeline entry should show: company / role, dates (e.g. "Jan 2023 —
+  Present"), and a one-line summary. Use 4–5 placeholder experiences. The
+  timeline must:
+    - lay items out in a single horizontal row inside a scrollable container
+    - hide the default scrollbar but remain scrollable
+    - show a subtle gradient fade on the right edge to hint at more content
+    - be keyboard-accessible (focusable items, left/right arrow scrolling)
+
+  The two-column layout must be responsive: on small screens (md breakpoint and
+  below) the right column stacks below the hero copy, the timeline remains
+  horizontally scrollable, and the profile picture shrinks appropriately. All
+  other sections of the page (project squares, resume, blogs) stay as they are —
+  only the first screen / hero changes.
+
+  REQUIRED TEST HOOKS — every element below MUST carry the specified data-testid
+  attribute, or `role` / `aria-label` as noted, so the Playwright verifier can
+  find it. Missing hooks will cause the verifier to fail this iteration:
+    - The profile picture container: data-testid="profile-avatar"
+    - Each timeline entry: data-testid="timeline-item"   (at least 4)
+    - The container holding the project squares: data-testid="projects-section"
+    - Each project square / card: data-testid="project-card"   (at least 4)
+    - The Resume section container: data-testid="resume-section"
+    - The Blogs section container: data-testid="blogs-section"
+    - Each blog post card: data-testid="blog-card"   (at least 2)
+    - The project modal root element: role="dialog"
+    - The modal close button: aria-label="Close"
+  Sections that already exist still need these data-testid attributes added.
+  Clicking a project-card MUST open the modal (verifier clicks the first one and
+  waits for role="dialog" to appear).
+status: succeeded
+iterations:
+  - type: iteration
+    iteration: 1
+    timestamp: 2026-06-26T23:14:04.964Z
+    plan:
+      goal: Update the landing page hero with a profile area and experience timeline,
+        adding all required test hooks
+      steps:
+        - id: step_1
+          type: tool_call
+          tool: list_files
+          description: List workspace root to understand project structure
+        - id: step_2
+          type: tool_call
+          tool: read_file
+          description: Read the current landing page to understand existing structure
+        - id: step_3
+          type: tool_call
+          tool: read_file
+          description: Read globals.css to understand existing theme tokens
+        - id: step_4
+          type: tool_call
+          tool: list_files
+          description: List src/app directory to find any existing components
+        - id: step_5
+          type: tool_call
+          tool: write_file
+          description: Write the ExperienceTimeline client component with wheel-scroll,
+            gradient fade, keyboard accessibility, and data-testid attributes
+        - id: step_6
+          type: tool_call
+          tool: write_file
+          description: Rewrite page.tsx with two-column hero, profile avatar, timeline,
+            and all required data-testid/role/aria-label hooks
+        - id: step_7
+          type: tool_call
+          tool: run_build
+          description: Run build to verify no errors
+        - id: step_8
+          type: tool_call
+          tool: run_lint
+          description: Run lint to verify no lint errors
+    results:
+      - stepId: step_1
+        status: success
+      - stepId: step_2
+        status: success
+      - stepId: step_3
+        status: success
+      - stepId: step_4
+        status: success
+      - stepId: step_5
+        status: success
+      - stepId: step_6
+        status: success
+      - stepId: step_7
+        status: success
+      - stepId: step_8
+        status: success
+    verification:
+      status: success
+      score: 0
+      failedSteps: []
+      summary: |-
+        Verification: success
+        Mean visual score: 0.0 (threshold 90)
+        Screens captured: 1
+          - Screen_1.png: visual=n/a, assertions 4/4 pass

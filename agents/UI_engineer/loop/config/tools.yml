@@ -1,0 +1,83 @@
+tools:
+
+  read_file:
+    description: Read a file from the workspace
+    input_schema:
+      type: object
+      required: [path]
+      properties:
+        path:
+          type: string
+          description: Relative path within the workspace (no .., no leading /)
+
+  list_files:
+    description: List entries in a workspace directory (excluding node_modules and .next). Use this to discover the actual file structure instead of assuming. Use "." for the workspace root.
+    input_schema:
+      type: object
+      required: [path]
+      properties:
+        path:
+          type: string
+          description: Relative directory path within the workspace ("." for root)
+
+  edit_file:
+    description: Replace an exact substring in a file. old_string must be unique within the file.
+    input_schema:
+      type: object
+      required: [path, old_string, new_string]
+      properties:
+        path: { type: string }
+        old_string: { type: string }
+        new_string: { type: string }
+
+  write_file:
+    description: |
+      Create OR overwrite a file with the given content. This is the canonical
+      tool for putting content into the workspace — use it for both new files
+      and for fully replacing existing ones. Never fails on collision. Prefer
+      this over edit_file when you are producing the entire file content.
+    input_schema:
+      type: object
+      required: [path, content]
+      properties:
+        path: { type: string }
+        content: { type: string }
+
+  # Deferred — write_file covers both create and overwrite. The handler still
+  # exists in tools/file_tools.ts and can be re-enabled if needed.
+  create_file:
+    deferred: true
+    description: Create a new file with the given content. Fails if the file already exists.
+
+  delete_file:
+    description: Delete a file from the workspace.
+    input_schema:
+      type: object
+      required: [path]
+      properties:
+        path: { type: string }
+
+  run_build:
+    description: Run `npm run build` inside the workspace. Returns exit code, stdout, stderr.
+    input_schema:
+      type: object
+      properties: {}
+
+  run_lint:
+    description: Run `npm run lint` inside the workspace. Returns exit code, stdout, stderr.
+    input_schema:
+      type: object
+      properties: {}
+
+  # Deferred — not registered yet. Specs preserved for v2.
+  run_dev_server:
+    deferred: true
+    description: Start Next.js locally
+
+  take_screenshot:
+    deferred: true
+    description: Capture webpage
+
+  run_playwright:
+    deferred: true
+    description: Execute browser tests
