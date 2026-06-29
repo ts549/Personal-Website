@@ -88,7 +88,21 @@ export async function listProjects(): Promise<Project[]> {
     });
   }
 
+  let orderedSlugs: string[] = [];
+  const orderPath = join(PROJECTS_DIR, "order.csv");
+  if (await exists(orderPath)) {
+    const raw = await readFile(orderPath, "utf-8");
+    orderedSlugs = raw
+      .split(/[,\n]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  const rank = new Map(orderedSlugs.map((slug, i) => [slug, i]));
   projects.sort((a, b) => {
+    const ra = rank.has(a.slug) ? (rank.get(a.slug) as number) : Number.POSITIVE_INFINITY;
+    const rb = rank.has(b.slug) ? (rank.get(b.slug) as number) : Number.POSITIVE_INFINITY;
+    if (ra !== rb) return ra - rb;
     if (a.order !== b.order) return a.order - b.order;
     return a.slug.localeCompare(b.slug);
   });
