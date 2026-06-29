@@ -4,16 +4,39 @@ import type { Browser, Page } from "playwright";
 import { chromium } from "playwright";
 
 import type {
-  AssertionResult,
+  InteractionSpec,
   ScreenAction,
   ScreenAssertion,
-  ScreenResult,
-  ScreenSpec,
+  SectionCapture,
+  Viewport,
 } from "./screens";
 
+export interface AssertionResult {
+  assertion: ScreenAssertion;
+  passed: boolean;
+  detail?: string;
+}
+
+export interface SectionResult {
+  screen: number;
+  section: number;
+  url: string;
+  imageName: string;
+  screenshotPath: string;
+  assertions: AssertionResult[];
+  visualScore?: number;
+  visualDifferences?: string[];
+}
+
+export interface InteractionResult {
+  name: string;
+  screen: number;
+  url: string;
+  assertions: AssertionResult[];
+}
+
 /**
- * Owns a single Chromium instance reused across all captures within a verifier run.
- * Open at start of a verification pass, close at the end.
+ * One Chromium instance reused across all captures and interactions in a verifier pass.
  */
 export class Capture {
   private browser?: Browser;
@@ -35,23 +58,24 @@ export class Capture {
     this.browser = undefined;
   }
 
-  async captureScreen(spec: ScreenSpec, iteration: number): Promise<ScreenResult> {
-    if (!this.browser) {
-      throw new Error("Capture not started — call start() first");
-    }
+  /**
+   * Navigate, scroll to section position, screenshot, run assertions.
+   */
+  async captureSection(
+    spec: SectionCapture,
+    iteration: number,
+  ): Promise<SectionResult> {
+    if (!this.browser) throw new Error("Capture not started — call start() first");
 
-    const context = await this.browser.newContext({
-      viewport: { width: spec.viewport.width, height: spec.viewport.height },
-      deviceScaleFactor: 1,
-    });
-    const page = await context.newPage();
-
+    const { page, context } = await this.newPage(spec.viewport);
     try {
-      const targetUrl = new URL(spec.url, this.baseUrl).toString();
-      await page.goto(targetUrl, { waitUntil: "networkidle", timeout: 30_000 });
+      const target = new URL(spec.url, this.baseUrl).toString();
+      await page.goto(target, { waitUntil: "networkidle", timeout: 30_000 });
 
-      for (const action of spec.actions ?? []) {
-        await this.runAction(page, action);
+      if (spec.scrollY > 0) {
+        await page.evaluate((y) => window.scrollTo({ top: y, behavior: "instant" as ScrollBehavior }), spec.scrollY);
+        // Give layout / lazy-loaded content a moment to settle.
+        await page.waitForTimeout(300);
       }
 
       const assertions = await this.runAssertions(page, spec.assertions ?? []);
@@ -59,20 +83,60 @@ export class Capture {
       const screenshotPath = join(
         this.screenshotDir,
         `iter_${iteration}`,
-        spec.name,
+        spec.imageName,
       );
       mkdirSync(dirname(screenshotPath), { recursive: true });
       await page.screenshot({ path: screenshotPath, fullPage: false });
 
       return {
-        name: spec.name,
-        url: targetUrl,
+        screen: spec.screen,
+        section: spec.section,
+        url: target,
+        imageName: spec.imageName,
         screenshotPath,
         assertions,
       };
     } finally {
       await context.close();
     }
+  }
+
+  /**
+   * Navigate fresh, run scripted actions, run assertions. No screenshot.
+   */
+  async runInteraction(spec: InteractionSpec): Promise<InteractionResult> {
+    if (!this.browser) throw new Error("Capture not started — call start() first");
+
+    const { page, context } = await this.newPage(spec.viewport);
+    try {
+      const target = new URL(spec.url, this.baseUrl).toString();
+      await page.goto(target, { waitUntil: "networkidle", timeout: 30_000 });
+
+      for (const action of spec.actions) {
+        await this.runAction(page, action);
+      }
+
+      const assertions = await this.runAssertions(page, spec.assertions);
+
+      return {
+        name: spec.name,
+        screen: spec.screen,
+        url: target,
+        assertions,
+      };
+    } finally {
+      await context.close();
+    }
+  }
+
+  private async newPage(viewport: Viewport) {
+    if (!this.browser) throw new Error("Capture not started");
+    const context = await this.browser.newContext({
+      viewport: { width: viewport.width, height: viewport.height },
+      deviceScaleFactor: 1,
+    });
+    const page = await context.newPage();
+    return { page, context };
   }
 
   private async runAction(page: Page, action: ScreenAction): Promise<void> {
@@ -140,10 +204,7 @@ export class Capture {
             break;
           }
           case "attribute_equals": {
-            const val = await page
-              .locator(a.selector)
-              .first()
-              .getAttribute(a.attribute);
+            const val = await page.locator(a.selector).first().getAttribute(a.attribute);
             out.push({
               assertion: a,
               passed: val === a.value,

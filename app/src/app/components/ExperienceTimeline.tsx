@@ -1,5 +1,5 @@
 'use client';
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const experiences = [
   {
@@ -36,11 +36,42 @@ const experiences = [
 
 export default function ExperienceTimeline() {
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Mutable drag state — kept in a ref so move events don't re-render.
+  const drag = useRef({ active: false, startX: 0, startScrollLeft: 0 });
+  const [isGrabbing, setIsGrabbing] = useState(false);
 
-  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    if (scrollRef.current) {
-      e.preventDefault();
-      scrollRef.current.scrollLeft += e.deltaY + e.deltaX;
+  // Pin to the rightmost experience on mount.
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!scrollRef.current) return;
+    drag.current = {
+      active: true,
+      startX: e.clientX,
+      startScrollLeft: scrollRef.current.scrollLeft,
+    };
+    setIsGrabbing(true);
+    scrollRef.current.setPointerCapture(e.pointerId);
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!drag.current.active || !scrollRef.current) return;
+    // Drag delta: positive when the pointer moves RIGHT. To make content move
+    // with the pointer (drag left → content slides left), scrollLeft moves in
+    // the opposite direction.
+    const delta = e.clientX - drag.current.startX;
+    scrollRef.current.scrollLeft = drag.current.startScrollLeft - delta;
+  };
+
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!drag.current.active) return;
+    drag.current.active = false;
+    setIsGrabbing(false);
+    if (scrollRef.current?.hasPointerCapture(e.pointerId)) {
+      scrollRef.current.releasePointerCapture(e.pointerId);
     }
   };
 
@@ -59,30 +90,33 @@ export default function ExperienceTimeline() {
     <div className="relative w-full">
       <div className="flex items-center justify-between mb-3 px-1">
         <span className="text-xs font-semibold tracking-widest text-gray-500 uppercase">Résumé</span>
-        <span className="text-xs text-gray-400">drag → →</span>
+        <span className="text-xs text-gray-400">click + drag</span>
       </div>
-      {/* Timeline line */}
       <div className="relative mb-2 px-1">
         <div className="h-px bg-gray-200 w-full" />
       </div>
-      {/* Scrollable container */}
       <div className="relative">
-        <div
+        <section
           ref={scrollRef}
-          onWheel={handleWheel}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
           onKeyDown={handleKeyDown}
-          tabIndex={0}
-          role="region"
           aria-label="Experience timeline"
-          className="flex flex-row gap-4 overflow-x-auto pb-2 focus:outline-none"
+          // Right padding = (half the container width - half an item width) so
+          // the last item ends up centered when scrolled to scrollLeft = max.
+          // calc(50% - 5.5rem) where 5.5rem = w-44/2 = half a card.
+          className={`flex flex-row gap-4 overflow-x-auto pb-2 pr-[calc(50%-5.5rem)] focus:outline-none select-none touch-pan-y ${
+            isGrabbing ? 'cursor-grabbing' : 'cursor-grab'
+          }`}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
-          {experiences.map((exp, i) => (
+          {experiences.map((exp) => (
             <div
-              key={i}
+              key={exp.company}
               data-testid="timeline-item"
-              tabIndex={0}
-              className="flex-shrink-0 w-44 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded-md p-2"
+              className="shrink-0 w-44 rounded-md p-2 pointer-events-none"
             >
               <div className="w-2 h-2 rounded-full bg-blue-500 mb-2" />
               <p className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-0.5">{exp.dates}</p>
@@ -91,8 +125,7 @@ export default function ExperienceTimeline() {
               <p className="text-xs text-gray-500 leading-snug">{exp.summary}</p>
             </div>
           ))}
-        </div>
-        {/* Right fade gradient */}
+        </section>
         <div
           className="pointer-events-none absolute top-0 right-0 h-full w-12"
           style={{ background: 'linear-gradient(to right, transparent, #f3f4f6)' }}

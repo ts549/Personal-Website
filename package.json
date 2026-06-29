@@ -2,6 +2,12 @@
   "name": "personal-website",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "dev": "npm --prefix app run dev",
+    "build": "npm --prefix app run build",
+    "start": "npm --prefix app run start",
+    "lint": "npm --prefix app run lint"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "playwright": "^1.61.1",

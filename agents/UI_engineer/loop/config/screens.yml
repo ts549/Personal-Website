@@ -1,55 +1,52 @@
-# Screens are grouped by URL — one entry per route. Each route has one or
-# more `views`: a view is the page in a particular state (default, scrolled,
-# modal-open, etc.). Each view references the image filename in loop/docs/
-# that the verifier compares its captured screenshot against.
+# SCHEMA
+# ------
+# Each `screen` maps a screen number to a URL. Within a screen, a `section` is
+# a scroll-position snapshot: section M = scrolled (M-1) * viewport.height
+# pixels down from the top. Section 1 is the top of the page.
 #
-# A view inherits the screen's `viewport` unless it specifies its own.
+# Reference images in loop/docs/ MUST be named screen_{N}_section_{M}.png
+# (.jpg / .webp / .gif also accepted). Only sections with a matching reference
+# image get visually judged; missing references skip the visual check.
 #
-# The verifier requires for SUCCESS:
-#   1. EVERY assertion across EVERY view passes
-#   2. EVERY visual similarity score >= 90 (views whose `image` file is
-#      missing from loop/docs/ are skipped entirely — neither pass nor fail)
+# `assertions` under a section run after Playwright scrolls to that position.
+# `interactions` run as standalone flows after sections — they don't take a
+# screenshot, they verify behavior (e.g. clicking a card opens the modal).
 #
-# Selectors should use stable hooks (data-testid attributes preferred).
+# The verifier requires EVERY assertion and EVERY interaction to pass AND
+# every visual similarity score to be >= 90.
+
+viewport: { width: 1440, height: 900 }
 
 screens:
 
-  - url: "/"
-    viewport: { width: 1440, height: 900 }
-    views:
+  - screen: 1
+    url: "/"
 
-      - image: Screen_1.png
-        # Default state — page just loaded, no interactions.
+    sections:
+      - section: 1
+        # Top of the home page — hero, profile avatar, experience timeline.
         assertions:
           - { type: element_exists, selector: "main h1" }
           - { type: element_exists, selector: "[data-testid=profile-avatar]" }
           - { type: count_at_least, selector: "[data-testid=timeline-item]", min: 4 }
-          - { type: count_at_least, selector: "[data-testid=project-card]", min: 1 }
 
-      - image: Screen_2.png
-        # Scrolled to the projects grid.
-        actions:
-          - { type: scroll_to, selector: "[data-testid=projects-section]" }
-          - { type: wait_for, selector: "[data-testid=projects-section]" }
+      - section: 2
+        # One viewport down — Selected Work grid in view.
         assertions:
           - { type: element_exists, selector: "[data-testid=projects-section]" }
           - { type: count_at_least, selector: "[data-testid=project-card]", min: 4 }
 
-      - image: Screen_3.png
-        # Project modal opened by clicking the first project card.
+      - section: 3
+        # Two viewports down — Writing / blogs section.
+        assertions:
+          - { type: element_exists, selector: "[data-testid=blogs-section]" }
+          - { type: count_at_least, selector: "[data-testid=blog-card]", min: 2 }
+
+    interactions:
+      - name: project_modal_opens
         actions:
           - { type: click, selector: "[data-testid=project-card]" }
           - { type: wait_for, selector: "[role=dialog]" }
         assertions:
           - { type: element_exists, selector: "[role=dialog]" }
           - { type: element_exists, selector: "[role=dialog] [aria-label=Close]" }
-
-      - image: Screen_4.png
-        # Scrolled to the resume + blogs sections.
-        actions:
-          - { type: scroll_to, selector: "[data-testid=resume-section]" }
-          - { type: wait_for, selector: "[data-testid=resume-section]" }
-        assertions:
-          - { type: element_exists, selector: "[data-testid=resume-section]" }
-          - { type: element_exists, selector: "[data-testid=blogs-section]" }
-          - { type: count_at_least, selector: "[data-testid=blog-card]", min: 2 }

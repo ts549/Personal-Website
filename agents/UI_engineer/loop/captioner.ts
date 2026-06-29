@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { extname, join } from "node:path";
 
 const DOCS_DIR = join(__dirname, "docs");
-const SPEC_FILE = join(DOCS_DIR, "design-spec.md");
+const SPEC_FILE = join(DOCS_DIR, "design-specs.md");
 
 const IMG_EXTS = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif"]);
 

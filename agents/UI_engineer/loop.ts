@@ -3,13 +3,13 @@ import { join } from "node:path";
 
 import "dotenv/config";
 
-import { Captioner, loadDesignImages } from "./loop/captioner";
+import { Captioner, readDesignSpec } from "./loop/captioner";
 import { DevServer } from "./loop/devserver";
 import { Executor } from "./loop/executor";
 import { loadGoalConfig, renderGoal } from "./loop/goal";
 import { Judge } from "./loop/judge";
 import { ClaudeAgentClient } from "./loop/llm";
-import type { LlmClient, LlmImage } from "./loop/llm";
+import type { LlmClient } from "./loop/llm";
 import { Planner } from "./loop/planner";
 import { loadScreensConfig } from "./loop/screens";
 import { loadSession, newSession, writeSession } from "./loop/session";
@@ -59,19 +59,14 @@ export class Loop {
   private executor: Executor;
   private verifier: Verifier;
   private devServer: DevServer;
-  private designImages: LlmImage[];
+  private captioner: Captioner;
 
   constructor(llm?: LlmClient) {
     this.llm = llm ?? new ClaudeAgentClient();
     const tools = loadToolsConfig();
     this.planner = new Planner(this.llm, { tools });
     this.summarizer = new Summarizer(this.llm);
-    this.designImages = loadDesignImages();
-    if (this.designImages.length > 0) {
-      console.log(
-        `loaded ${this.designImages.length} reference design image(s): ${this.designImages.map((i) => i.name).join(", ")}`,
-      );
-    }
+    this.captioner = new Captioner();
     this.registry = new Registry({ sandboxRoot: SANDBOX_ROOT });
     this.executor = new Executor({ toolRegistry: this.registry });
     this.verifier = new Verifier({
@@ -91,24 +86,26 @@ export class Loop {
     );
 
     const screensConfig = loadScreensConfig();
-    const activeScreens = screensConfig.screens.filter((s) =>
-      existsSync(join(REFERENCE_DIR, s.name)),
-    );
-    const skipped = screensConfig.screens.filter(
-      (s) => !existsSync(join(REFERENCE_DIR, s.name)),
-    );
     console.log(
-      `screens: ${activeScreens.length} active (reference image present), ${skipped.length} skipped (no reference)`,
+      `screens: ${screensConfig.sections.length} section(s), ${screensConfig.interactions.length} interaction(s) configured`,
     );
-    if (skipped.length > 0) {
+    const sectionsWithRef = screensConfig.sections.filter((s) =>
+      existsSync(join(REFERENCE_DIR, s.imageName)),
+    );
+    const sectionsMissingRef = screensConfig.sections.filter(
+      (s) => !existsSync(join(REFERENCE_DIR, s.imageName)),
+    );
+    if (sectionsMissingRef.length > 0) {
       console.log(
-        `  skipped: ${skipped.map((s) => s.name).join(", ")} — drop these into loop/docs/ to enable verification`,
+        `  sections without reference image (visual judge skipped): ${sectionsMissingRef.map((s) => s.imageName).join(", ")}`,
       );
     }
-    if (activeScreens.length === 0) {
-      throw new Error(
-        `no reference images found in ${REFERENCE_DIR} — drop at least one Screen_N.png matching a screens.yml entry`,
-      );
+
+    // Auto-run the captioner on first start if design-specs.md is missing.
+    if (!readDesignSpec()) {
+      console.log(`design-specs.md missing — running captioner once`);
+      const { path, skipped } = await this.captioner.generate(false);
+      console.log(skipped ? `  already present at ${path}` : `  wrote ${path}`);
     }
 
     await this.devServer.start();
@@ -146,7 +143,7 @@ export class Loop {
           context: config.context,
           recentFailures,
           iterationHistory: session.iterations,
-          designImages: this.designImages,
+          designSpec: readDesignSpec(),
           visualFeedback,
         });
         console.log(`  ← plan: ${plan.steps.length} steps`);
@@ -164,10 +161,11 @@ export class Loop {
           );
         }
 
-        console.log(`  → verifying (screenshots + assertions + visual judge)`);
+        console.log(`  → verifying (sections + interactions + visual judge)`);
         const verification = await this.verifier.verify({
           iteration,
-          screens: activeScreens,
+          sections: screensConfig.sections,
+          interactions: screensConfig.interactions,
           baseUrl: this.devServer.baseUrl,
         });
         visualFeedback = verification.visualFeedback;

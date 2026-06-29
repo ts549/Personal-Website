@@ -1,0 +1,5 @@
+Cofounded Revalve, an AI pricing intelligence platform for the resale
+market. Built and shipped the cross-platform valuation system end to end, from the
+backend that powers fair market valuations to the mobile app and Chrome
+extension that surface those insights to users. Engineered scalable offline data
+pipelines for price ingestion and forecasting.

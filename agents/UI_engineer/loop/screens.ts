@@ -22,70 +22,100 @@ export type ScreenAssertion =
   | { type: "attribute_equals"; selector: string; attribute: string; value: string };
 
 /**
- * Flattened internal shape — one entry per (URL × view) tuple.
- * The YAML is grouped by URL for editing ergonomics; the loader flattens.
+ * One scroll-position screenshot pass.
+ * imageName follows the naming convention: screen_{screen}_section_{section}.png
+ * scrollY is computed as (section - 1) * viewport.height.
  */
-export interface ScreenSpec {
-  /** Matches the reference image filename in loop/docs/. */
-  name: string;
+export interface SectionCapture {
+  screen: number;
+  section: number;
   url: string;
   viewport: Viewport;
-  actions?: ScreenAction[];
+  scrollY: number;
+  imageName: string;
   assertions?: ScreenAssertion[];
+}
+
+/**
+ * Stateful flow checked independently of section screenshots.
+ * Navigates fresh, runs actions, then asserts. No screenshot is compared.
+ */
+export interface InteractionSpec {
+  screen: number;
+  url: string;
+  viewport: Viewport;
+  name: string;
+  actions: ScreenAction[];
+  assertions: ScreenAssertion[];
 }
 
 export interface ScreensConfig {
-  screens: ScreenSpec[];
+  defaultViewport: Viewport;
+  sections: SectionCapture[];
+  interactions: InteractionSpec[];
 }
 
-/** The YAML schema as written by the user — URL-grouped views. */
-interface YamlView {
-  image: string;
+// ---- YAML shape (as authored) ----
+
+interface YamlSectionEntry {
+  section: number;
   viewport?: Viewport;
-  actions?: ScreenAction[];
   assertions?: ScreenAssertion[];
 }
 
-interface YamlScreen {
+interface YamlInteractionEntry {
+  name: string;
+  actions: ScreenAction[];
+  assertions: ScreenAssertion[];
+}
+
+interface YamlScreenEntry {
+  screen: number;
   url: string;
-  viewport: Viewport;
-  views: YamlView[];
+  viewport?: Viewport;
+  sections?: YamlSectionEntry[];
+  interactions?: YamlInteractionEntry[];
 }
 
 interface YamlRoot {
-  screens: YamlScreen[];
+  viewport: Viewport;
+  screens: YamlScreenEntry[];
 }
 
 export function loadScreensConfig(): ScreensConfig {
   const raw = parseYaml(readFileSync(SCREENS_YML_PATH, "utf8")) as YamlRoot;
+  const defaultViewport = raw.viewport;
 
-  const flat: ScreenSpec[] = [];
+  const sections: SectionCapture[] = [];
+  const interactions: InteractionSpec[] = [];
+
   for (const screen of raw.screens ?? []) {
-    for (const view of screen.views ?? []) {
-      flat.push({
-        name: view.image,
+    const screenViewport = screen.viewport ?? defaultViewport;
+
+    for (const sec of screen.sections ?? []) {
+      const viewport = sec.viewport ?? screenViewport;
+      sections.push({
+        screen: screen.screen,
+        section: sec.section,
         url: screen.url,
-        viewport: view.viewport ?? screen.viewport,
-        actions: view.actions,
-        assertions: view.assertions,
+        viewport,
+        scrollY: (sec.section - 1) * viewport.height,
+        imageName: `screen_${screen.screen}_section_${sec.section}.png`,
+        assertions: sec.assertions,
+      });
+    }
+
+    for (const ix of screen.interactions ?? []) {
+      interactions.push({
+        screen: screen.screen,
+        url: screen.url,
+        viewport: screenViewport,
+        name: ix.name,
+        actions: ix.actions,
+        assertions: ix.assertions,
       });
     }
   }
-  return { screens: flat };
-}
 
-export interface AssertionResult {
-  assertion: ScreenAssertion;
-  passed: boolean;
-  detail?: string;
-}
-
-export interface ScreenResult {
-  name: string;
-  url: string;
-  screenshotPath: string;
-  assertions: AssertionResult[];
-  /** Set by the visual judge after comparison against the reference image. */
-  visualScore?: number;
-  visualDifferences?: string[];
+  return { defaultViewport, sections, interactions };
 }

@@ -1,0 +1,2 @@
+First joined Liberty Mutual as a software engineering intern, building internal platform
+tooling to automate application monitoring and performance analysis as a part of their DevOps team.

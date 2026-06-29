@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { LlmClient, LlmImage } from "./llm";
+import type { LlmClient } from "./llm";
 import type { ToolsConfig } from "./tools/registry";
 import { activeToolSpecs } from "./tools/registry";
 import type { FailureRecord, Plan, PlanStep, SessionEntry } from "./types";
@@ -64,9 +64,9 @@ export class Planner {
     context?: string;
     recentFailures?: FailureRecord[];
     iterationHistory?: SessionEntry[];
-    /** Reference design images attached to the planner LLM call. */
-    designImages?: LlmImage[];
-    /** Per-screen diff feedback from the previous iteration's visual verifier. */
+    /** Pre-rendered design specification text from loop/docs/design-specs.md. */
+    designSpec?: string;
+    /** Per-section diff feedback from the previous iteration's verifier. */
     visualFeedback?: VisualFeedback[];
   }): Promise<Plan> {
     const {
@@ -74,7 +74,7 @@ export class Planner {
       context,
       recentFailures,
       iterationHistory,
-      designImages,
+      designSpec,
       visualFeedback,
     } = input;
     const basePrompt = this.buildPrompt(
@@ -82,7 +82,7 @@ export class Planner {
       context,
       recentFailures,
       iterationHistory,
-      designImages && designImages.length > 0,
+      designSpec,
       visualFeedback,
     );
 
@@ -95,7 +95,7 @@ export class Planner {
           ? basePrompt
           : `${basePrompt}\n\nYour previous output was invalid:\n${lastError}\nOutput was:\n${lastOutput?.slice(0, 500)}\n\nReturn ONLY valid JSON.`;
 
-      const raw = await this.callLLM(prompt, designImages);
+      const raw = await this.callLLM(prompt);
       lastOutput = raw;
 
       try {
@@ -121,12 +121,13 @@ export class Planner {
     context?: string,
     recentFailures?: FailureRecord[],
     iterationHistory?: SessionEntry[],
-    hasDesignImages?: boolean,
+    designSpec?: string,
     visualFeedback?: VisualFeedback[],
   ): string {
-    const designSpecBlock = hasDesignImages
-      ? `\nReference design images are ATTACHED to this message. They are the visual source of truth — match them exactly. Each image is labeled by filename so you can reference them by name in your plan steps.\n`
-      : "";
+    const designSpecBlock =
+      designSpec && designSpec.length > 0
+        ? `\nDesign specification (the visual + behavioral source of truth — generated from reference screenshots; match it exactly):\n${designSpec}\n`
+        : "";
 
     const visualFeedbackBlock =
       visualFeedback && visualFeedback.length > 0
@@ -134,7 +135,7 @@ export class Planner {
             .map((f) => {
               const lines: string[] = [];
               lines.push(
-                `- ${f.screen} (visual score: ${f.visualScore ?? "n/a"})`,
+                `- ${f.context} (visual score: ${f.visualScore ?? "n/a"})`,
               );
               if (f.visualDifferences.length > 0) {
                 lines.push("    visual differences vs reference:");
@@ -192,17 +193,15 @@ ${context ? `\nContext:\n${context}\n` : ""}${designSpecBlock}${historyBlock}${f
   }
 
   /**
-   * Calls the injected LLM client. Prefills with `{` to force JSON output when
-   * no images are attached (prefill is ignored in multimodal mode).
+   * Calls the injected LLM client. Prefills with `{` to force JSON output.
    */
-  private async callLLM(prompt: string, images?: LlmImage[]): Promise<string> {
+  private async callLLM(prompt: string): Promise<string> {
     const res = await this.llm.complete({
       prompt,
       model: this.config.model,
       temperature: this.config.temperature,
       prefill: "{",
       label: "planner",
-      images,
     });
     return res.text;
   }
