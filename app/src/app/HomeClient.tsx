@@ -189,36 +189,72 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {projects.map((project, idx) => (
-              <button
-                type="button"
-                key={project.slug}
-                data-testid="project-card"
-                onClick={() => setActiveIdx(idx)}
-                aria-label={`Open ${project.title} project`}
-                className="group flex flex-col aspect-[3/4] border border-gray-200 bg-white cursor-pointer hover:shadow-md hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 text-left p-0"
-              >
-                <div
-                  className="relative flex-1 border-b border-gray-200 overflow-hidden"
-                  style={project.thumbnailUrl ? undefined : HATCH_BG}
+            {projects.map((project, idx) => {
+              const cardInner = (
+                <>
+                  <div
+                    className="relative flex-1 border-b border-gray-200 overflow-hidden"
+                    style={project.thumbnailUrl || project.pdfUrl ? undefined : HATCH_BG}
+                  >
+                    {project.thumbnailUrl ? (
+                      // biome-ignore lint/performance/noImgElement: small static thumbnail, optimized at build
+                      <img
+                        src={project.thumbnailUrl}
+                        alt={project.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    ) : project.pdfUrl ? (
+                      <iframe
+                        src={`${project.pdfUrl}#page=1&view=Fit&toolbar=0&navpanes=0&scrollbar=0`}
+                        title={`${project.title} preview`}
+                        className="absolute inset-0 w-full h-full pointer-events-none bg-white"
+                        aria-hidden="true"
+                      />
+                    ) : null}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="font-serif font-semibold text-gray-900 text-base leading-tight mb-1">
+                      {project.title}
+                    </h3>
+                    {project.oneLiner && (
+                      <p className="text-xs text-gray-500 line-clamp-1">{project.oneLiner}</p>
+                    )}
+                  </div>
+                </>
+              );
+
+              const cardClass =
+                'group flex flex-col aspect-[3/4] border border-gray-200 bg-white cursor-pointer hover:shadow-md hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400 text-left p-0';
+
+              if (project.isPaper && project.pdfUrl) {
+                return (
+                  <a
+                    key={project.slug}
+                    data-testid="project-card"
+                    href={project.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Open ${project.title} paper PDF`}
+                    className={cardClass}
+                  >
+                    {cardInner}
+                  </a>
+                );
+              }
+
+              return (
+                <button
+                  type="button"
+                  key={project.slug}
+                  data-testid="project-card"
+                  onClick={() => setActiveIdx(idx)}
+                  aria-label={`Open ${project.title} project`}
+                  className={cardClass}
                 >
-                  {project.thumbnailUrl && (
-                    // biome-ignore lint/performance/noImgElement: small static thumbnail, optimized at build
-                    <img
-                      src={project.thumbnailUrl}
-                      alt={project.title}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="font-serif font-semibold text-gray-900 text-base leading-tight mb-1">
-                    {project.title}
-                  </h3>
-                  <p className="text-xs text-gray-500 line-clamp-1">{project.description}</p>
-                </div>
-              </button>
-            ))}
+                  {cardInner}
+                </button>
+              );
+            })}
           </div>
         )}
       </section>
@@ -293,7 +329,6 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
               <div>
                 <p className="text-xs font-mono font-semibold text-blue-600 tracking-widest uppercase mb-3">
                   {String(activeIdx + 1).padStart(2, '0')}
-                  {activeProject.category && ` · ${activeProject.category}`}
                 </p>
                 <h2 className="text-3xl font-serif font-bold text-gray-900">
                   {activeProject.title}
@@ -390,52 +425,6 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
                 </>
               )}
 
-              {(activeProject.liveUrl || activeProject.sourceUrl) && (
-                <div className="flex gap-3">
-                  {activeProject.liveUrl && (
-                    <a
-                      href={activeProject.liveUrl}
-                      className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-gray-900 text-white text-sm font-medium rounded hover:bg-gray-700 transition-colors"
-                    >
-                      Live
-                      <svg
-                        aria-hidden="true"
-                        className="w-3.5 h-3.5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M7 17 17 7" />
-                        <path d="M8 7h9v9" />
-                      </svg>
-                    </a>
-                  )}
-                  {activeProject.sourceUrl && (
-                    <a
-                      href={activeProject.sourceUrl}
-                      className="inline-flex items-center gap-1.5 px-5 py-2.5 border border-gray-300 text-gray-800 text-sm font-medium rounded hover:bg-gray-100 transition-colors"
-                    >
-                      Source
-                      <svg
-                        aria-hidden="true"
-                        className="w-3.5 h-3.5"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M7 17 17 7" />
-                        <path d="M8 7h9v9" />
-                      </svg>
-                    </a>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         </div>

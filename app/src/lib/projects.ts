@@ -1,25 +1,25 @@
 import { access, readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
-import matter from "gray-matter";
 
 const PROJECTS_DIR = join(process.cwd(), "public", "projects");
 
 export interface Project {
   slug: string;
-  /** Title shown on the card and modal. Falls back to slug if not in frontmatter. */
+  /** Card heading. Falls back to slug. */
   title: string;
-  category: string;
-  description: string;
+  /** Short subtitle shown at the bottom of the card. From one_liner.txt. */
+  oneLiner: string;
+  /** Tech tags shown in the modal. From tech_stack.csv. Empty array hides the section. */
   tech: string[];
-  liveUrl?: string;
-  sourceUrl?: string;
-  /** Display order; lower comes first. Defaults to Infinity, then alphabetical by slug. */
-  order: number;
-  /** Markdown body (frontmatter stripped). May be empty. */
+  /** Markdown body shown in the modal. From description.md. */
   body: string;
   /** Public-URL paths to media in the slug folder, undefined if missing on disk. */
   thumbnailUrl?: string;
   videoUrl?: string;
+  /** True when the slug starts with "RP" — research-paper card. */
+  isPaper: boolean;
+  /** Public URL to paper.pdf when the card is a paper. */
+  pdfUrl?: string;
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -31,6 +31,17 @@ async function exists(path: string): Promise<boolean> {
   }
 }
 
+/**
+ * Folder layout under public/projects/<slug>/:
+ *   description.md   — markdown body (modal)
+ *   one_liner.txt    — single-line card subtitle (optional)
+ *   tech_stack.csv   — comma- or newline-separated tech tags (optional)
+ *   thumbnail.png    — card thumbnail (optional)
+ *   demo.mp4         — modal hero video (optional)
+ *
+ * Ordering comes from public/projects/order.csv. Folders not listed are appended
+ * alphabetically.
+ */
 export async function listProjects(): Promise<Project[]> {
   if (!(await exists(PROJECTS_DIR))) return [];
 
@@ -42,28 +53,24 @@ export async function listProjects(): Promise<Project[]> {
     const slug = entry.name;
     const dir = join(PROJECTS_DIR, slug);
 
-    let title = slug;
-    let category = "";
-    let description = "";
-    let tech: string[] = [];
-    let liveUrl: string | undefined;
-    let sourceUrl: string | undefined;
-    let order = Number.POSITIVE_INFINITY;
-    let body = "";
-
     const descPath = join(dir, "description.md");
-    if (await exists(descPath)) {
-      const raw = await readFile(descPath, "utf-8");
-      const parsed = matter(raw);
-      const data = parsed.data as Record<string, unknown>;
-      title = typeof data.title === "string" ? data.title : slug;
-      category = typeof data.category === "string" ? data.category : "";
-      description = typeof data.description === "string" ? data.description : "";
-      tech = Array.isArray(data.tech) ? data.tech.filter((t): t is string => typeof t === "string") : [];
-      liveUrl = typeof data.liveUrl === "string" ? data.liveUrl : undefined;
-      sourceUrl = typeof data.sourceUrl === "string" ? data.sourceUrl : undefined;
-      order = typeof data.order === "number" ? data.order : Number.POSITIVE_INFINITY;
-      body = parsed.content.trim();
+    const body = (await exists(descPath))
+      ? (await readFile(descPath, "utf-8")).trim()
+      : "";
+
+    const oneLinerPath = join(dir, "one_liner.txt");
+    const oneLiner = (await exists(oneLinerPath))
+      ? (await readFile(oneLinerPath, "utf-8")).trim()
+      : "";
+
+    let tech: string[] = [];
+    const techPath = join(dir, "tech_stack.csv");
+    if (await exists(techPath)) {
+      const raw = await readFile(techPath, "utf-8");
+      tech = raw
+        .split(/[,\n]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
     }
 
     const thumbnailUrl = (await exists(join(dir, "thumbnail.png")))
@@ -73,18 +80,32 @@ export async function listProjects(): Promise<Project[]> {
       ? `/projects/${slug}/demo.mp4`
       : undefined;
 
+    const isPaper = slug.startsWith("RP");
+    const pdfUrl = isPaper && (await exists(join(dir, "paper.pdf")))
+      ? `/projects/${slug}/paper.pdf`
+      : undefined;
+
+    // For paper cards, strip the "RP_" / "RP" prefix and turn snake_case +
+    // CamelCase into spaced words for display.
+    const title = isPaper
+      ? slug
+          .replace(/^RP[_-]?/, "")
+          .replace(/[_-]+/g, " ")
+          .replace(/([a-z])([A-Z])/g, "$1 $2")
+          .replace(/\s+/g, " ")
+          .trim()
+      : slug;
+
     projects.push({
       slug,
       title,
-      category,
-      description,
+      oneLiner,
       tech,
-      liveUrl,
-      sourceUrl,
-      order,
       body,
       thumbnailUrl,
       videoUrl,
+      isPaper,
+      pdfUrl,
     });
   }
 
@@ -103,7 +124,6 @@ export async function listProjects(): Promise<Project[]> {
     const ra = rank.has(a.slug) ? (rank.get(a.slug) as number) : Number.POSITIVE_INFINITY;
     const rb = rank.has(b.slug) ? (rank.get(b.slug) as number) : Number.POSITIVE_INFINITY;
     if (ra !== rb) return ra - rb;
-    if (a.order !== b.order) return a.order - b.order;
     return a.slug.localeCompare(b.slug);
   });
   return projects;

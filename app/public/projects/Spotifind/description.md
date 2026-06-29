@@ -1,0 +1,1 @@
+Another fun project. Spotifind is a voice-driven playlist generator that hooks directly into your Spotify account. Speak a phrase into the mic like "I am sad", "I want to lock in", etc. and it spins up a playlist on your Spotify that matches your mood through NLP and sentiment analysis.

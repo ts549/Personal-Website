@@ -1,0 +1,3 @@
+StreamShield is a real-time censoring tool that catches sensitive information before it ever reaches a viewer (credit cards, passports, IDs, addresses, phone numbers, and anything else you'd rather not broadcast). It runs on a vision model trained on a large self-sourced/generated dataset of sensitive artifacts, so it recognizes the things stock OCR tools miss.
+
+There's been a lot of incidents in the past and even recently of streamers accidentally leaking phone numbers, addresses, etc. This tool is intended to help reduce these issues. StreamShield is meant to be integrated on top of the stream and blurs sensitive content the moment it appears.
