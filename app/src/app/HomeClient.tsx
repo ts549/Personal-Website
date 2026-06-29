@@ -63,9 +63,8 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
         <div className="max-w-6xl mx-auto h-full px-8 flex items-center justify-between">
           <span className="font-semibold text-base tracking-tight">Tao Sun</span>
           <div className="flex gap-6 text-sm text-gray-700">
-            <a href="#resume" className="hover:text-gray-900 transition-colors">Resume</a>
-            <a href="#work" className="hover:text-gray-900 transition-colors">Work</a>
-            <a href="#blogs" className="hover:text-gray-900 transition-colors">Blogs</a>
+            <a href="#projects" className="hover:text-gray-900 transition-colors">Projects</a>
+            <a href="#blog" className="hover:text-gray-900 transition-colors">Blog</a>
           </div>
         </div>
       </nav>
@@ -175,7 +174,7 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
 
       {/* SELECTED WORK */}
       {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor target for the nav link */}
-      <section id="work" data-testid="projects-section" className="px-8 py-12 max-w-6xl mx-auto">
+      <section id="projects" data-testid="projects-section" className="px-8 py-12 max-w-6xl mx-auto">
         <div className="flex items-baseline justify-between mb-6">
           <h2 className="text-2xl font-serif font-bold text-gray-900">Projects and Works</h2>
           <span className="text-sm text-gray-400 font-mono">
@@ -207,7 +206,9 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
                       <iframe
                         src={`${project.pdfUrl}#page=1&view=Fit&toolbar=0&navpanes=0&scrollbar=0`}
                         title={`${project.title} preview`}
-                        className="absolute inset-0 w-full h-full pointer-events-none bg-white"
+                        scrolling="no"
+                        className="absolute -top-2 -left-2 pointer-events-none bg-white"
+                        style={{ width: 'calc(100% + 1.25rem)', height: 'calc(100% + 1.25rem)' }}
                         aria-hidden="true"
                       />
                     ) : null}
@@ -261,9 +262,9 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
 
       {/* BLOGS */}
       {/* biome-ignore lint/correctness/useUniqueElementIds: stable anchor target for the nav link */}
-      <section id="blogs" data-testid="blogs-section" className="px-8 py-12 max-w-6xl mx-auto">
+      <section id="blog" data-testid="blog-section" className="px-8 py-12 max-w-6xl mx-auto">
         <div className="flex items-baseline justify-between mb-6">
-          <h2 className="text-2xl font-serif font-bold text-gray-900">Blogs</h2>
+          <h2 className="text-2xl font-serif font-bold text-gray-900">Blog</h2>
           <span className="text-sm font-mono text-gray-400">notes and findings on AI engineering</span>
         </div>
         <div className="border-t border-gray-200 mb-8" />
@@ -294,19 +295,14 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
                   )}
                 </div>
                 <div className="p-6 flex flex-col flex-1">
-                  {(blog.year || blog.month) && (
+                  {blog.date && (
                     <p className="text-xs font-mono tracking-widest uppercase text-gray-400 mb-3">
-                      {[blog.year, blog.month].filter(Boolean).join(" · ")}
+                      {blog.date}
                     </p>
                   )}
-                  <h3 className="font-serif font-bold text-xl text-gray-900 leading-snug mb-3 group-hover:text-blue-600 transition-colors">
+                  <h3 className="font-serif font-bold text-xl text-gray-900 leading-snug group-hover:text-blue-600 transition-colors">
                     {blog.title}
                   </h3>
-                  {blog.summary && (
-                    <p className="text-sm text-gray-500 leading-relaxed flex-1">
-                      {blog.summary}
-                    </p>
-                  )}
                 </div>
               </a>
             ))}
@@ -429,6 +425,33 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
           </div>
         </div>
       )}
+
+      <footer className="mt-24 border-t border-gray-200">
+        <div className="max-w-6xl mx-auto px-8 py-8 flex items-center justify-between">
+          <span className="font-serif text-gray-900">Tao Sun</span>
+          <div className="flex gap-6 text-xs font-mono text-gray-500">
+            {socialButtons
+              .filter((btn) => btn.kind === 'link')
+              .map((btn) => {
+                const label =
+                  btn.slug === 'x'
+                    ? 'X'
+                    : btn.slug.charAt(0).toUpperCase() + btn.slug.slice(1);
+                return (
+                  <a
+                    key={btn.slug}
+                    href={btn.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-gray-900 transition-colors"
+                  >
+                    {label}
+                  </a>
+                );
+              })}
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }

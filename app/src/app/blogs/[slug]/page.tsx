@@ -3,6 +3,10 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { getBlog, listBlogSlugs } from "@/lib/blogs";
 
+const BG = "#F8F7F2";
+const BODY = "#2D2A26";
+const HEADER = "#556B4F";
+
 export async function generateStaticParams() {
   const slugs = await listBlogSlugs();
   return slugs.map((slug) => ({ slug }));
@@ -19,30 +23,34 @@ export default async function BlogPage({
 
   return (
     <main
-      className="min-h-screen text-[#dedcd0]"
-      style={{ backgroundColor: "#a1ae90" }}
+      className="min-h-screen"
+      style={{ backgroundColor: BG, color: BODY }}
     >
       <div className="max-w-3xl mx-auto px-8 py-16">
         <a
           href="/#blogs"
-          className="inline-block text-sm font-mono text-[#dedcd0]/70 hover:text-[#dedcd0] transition-colors mb-12"
+          className="inline-block text-sm font-mono mb-12 transition-colors"
+          style={{ color: `${BODY}B3` }}
         >
           ← Home
         </a>
 
-        <p className="text-xs font-mono tracking-widest uppercase text-[#dedcd0]/70 mb-4">
-          {[blog.year, blog.month].filter(Boolean).join(" · ")}
-        </p>
-        <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight mb-6">
+        <h1
+          className="text-4xl md:text-5xl font-serif font-bold leading-tight mb-4"
+          style={{ color: HEADER }}
+        >
           {blog.title}
         </h1>
-        {blog.summary && (
-          <p className="text-lg text-[#dedcd0]/85 leading-relaxed mb-12 max-w-2xl">
-            {blog.summary}
-          </p>
-        )}
+        <p
+          className="text-sm font-mono mb-12"
+          style={{ color: `${BODY}B3` }}
+        >
+          {blog.date && <span>{blog.date}</span>}
+          {blog.date && <span> · </span>}
+          <span>Tao Sun</span>
+        </p>
 
-        <hr className="border-[#dedcd0]/30 mb-12" />
+        <hr className="mb-12" style={{ borderColor: `${BODY}33` }} />
 
         <article>
           <ReactMarkdown
@@ -50,25 +58,29 @@ export default async function BlogPage({
             components={{
               h1: (props) => (
                 <h1
-                  className="font-serif font-bold text-3xl text-[#dedcd0] mt-12 mb-4 first:mt-0"
+                  className="font-serif font-bold text-3xl mt-12 mb-4 first:mt-0"
+                  style={{ color: HEADER }}
                   {...props}
                 />
               ),
               h2: (props) => (
                 <h2
-                  className="font-serif font-bold text-2xl text-[#dedcd0] mt-10 mb-3 first:mt-0"
+                  className="font-serif font-bold text-2xl mt-10 mb-3 first:mt-0"
+                  style={{ color: HEADER }}
                   {...props}
                 />
               ),
               h3: (props) => (
                 <h3
-                  className="font-serif font-semibold text-xl text-[#dedcd0] mt-8 mb-3 first:mt-0"
+                  className="font-serif font-semibold text-xl mt-8 mb-3 first:mt-0"
+                  style={{ color: HEADER }}
                   {...props}
                 />
               ),
               p: (props) => (
                 <p
-                  className="text-base text-[#dedcd0]/90 leading-relaxed mb-5"
+                  className="text-base leading-relaxed mb-5"
+                  style={{ color: BODY }}
                   {...props}
                 />
               ),
@@ -80,40 +92,49 @@ export default async function BlogPage({
               ),
               li: (props) => (
                 <li
-                  className="text-base text-[#dedcd0]/90 leading-relaxed"
+                  className="text-base leading-relaxed"
+                  style={{ color: BODY }}
                   {...props}
                 />
               ),
               blockquote: (props) => (
                 <blockquote
-                  className="border-l-2 border-[#dedcd0]/50 pl-4 italic text-[#dedcd0]/80 my-5"
+                  className="pl-4 italic my-5 border-l-2"
+                  style={{ color: `${BODY}CC`, borderColor: `${BODY}80` }}
                   {...props}
                 />
               ),
               pre: (props) => (
                 <pre
-                  className="font-mono text-sm bg-[#dedcd0]/10 p-4 mb-5 overflow-x-auto text-[#dedcd0]/95"
+                  className="font-mono text-sm p-4 mb-5 overflow-x-auto"
+                  style={{ backgroundColor: `${BODY}14`, color: BODY }}
                   {...props}
                 />
               ),
               code: (props) => (
                 <code
-                  className="font-mono text-sm bg-[#dedcd0]/10 px-1 py-0.5 text-[#dedcd0]"
+                  className="font-mono text-sm px-1 py-0.5"
+                  style={{ backgroundColor: `${BODY}14`, color: BODY }}
                   {...props}
                 />
               ),
               a: (props) => (
                 <a
-                  className="text-[#dedcd0] underline decoration-[#dedcd0]/60 hover:decoration-[#dedcd0]"
+                  className="underline"
+                  style={{ color: HEADER, textDecorationColor: `${HEADER}99` }}
                   {...props}
                 />
               ),
               strong: (props) => (
-                <strong className="font-semibold text-[#dedcd0]" {...props} />
+                <strong
+                  className="font-semibold"
+                  style={{ color: BODY }}
+                  {...props}
+                />
               ),
               em: (props) => <em className="italic" {...props} />,
               hr: (props) => (
-                <hr className="border-[#dedcd0]/30 my-8" {...props} />
+                <hr className="my-8" style={{ borderColor: `${BODY}33` }} {...props} />
               ),
             }}
           >
