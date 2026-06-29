@@ -1,12 +1,22 @@
 At this point, everyone is familiar with prompt engineering. Everyone I talk to has the same experience using agents. You have a task in mind. You prompt the agent. You get a result and find issues and reprompt. Some engineers go a step deeper with context engineering and provide a list of feature specs beforehand to give more context to their model. There's a ton that can be done with AI but I don't think we're even remotely near the full potential of coding agents. Lately, I've been reading more on different engineering patterns and experimenting with something that I've been seeing pop up every now and then: loop engineering. Instead of carefully crafting prompts, the idea is to build an autonomous loop that can:
 
+<div style="text-align: center;">
+
 Plan
+
+↓
 
 Execute
 
+↓
+
 Verify
 
+↓
+
 Repeat
+
+</div>
 
 There are a few blogs and research papers covering this topic, and they go a bit into how to best use loop engineering to automate repetitive tasks like optimizing compiler loops or anything with defined quantifiable goals. I thought it was a great concept, the core idea being that you build a loop to do every step that a human does when they use agents, and store the intermediate data/results (i.e. the state of the task, the failures, the progress to the goal, etc.). I wanted to see exactly how far this could extend, so I decided to try an experiment.
 

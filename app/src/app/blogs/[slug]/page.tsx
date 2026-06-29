@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import { getBlog, listBlogSlugs } from "@/lib/blogs";
 
@@ -23,7 +24,7 @@ export default async function BlogPage({
 
   return (
     <main
-      className="min-h-screen"
+      className="min-h-screen font-(family-name:--font-inter)"
       style={{ backgroundColor: BG, color: BODY }}
     >
       <div className="max-w-3xl mx-auto px-8 py-16">
@@ -36,7 +37,7 @@ export default async function BlogPage({
         </a>
 
         <h1
-          className="text-4xl md:text-5xl font-serif font-bold leading-tight mb-4"
+          className="text-4xl md:text-5xl font-(family-name:--font-fraunces) font-bold leading-tight mb-4"
           style={{ color: HEADER }}
         >
           {blog.title}
@@ -55,24 +56,25 @@ export default async function BlogPage({
         <article>
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
             components={{
               h1: (props) => (
                 <h1
-                  className="font-serif font-bold text-3xl mt-12 mb-4 first:mt-0"
+                  className="font-(family-name:--font-fraunces) font-bold text-3xl mt-12 mb-4 first:mt-0"
                   style={{ color: HEADER }}
                   {...props}
                 />
               ),
               h2: (props) => (
                 <h2
-                  className="font-serif font-bold text-2xl mt-10 mb-3 first:mt-0"
+                  className="font-(family-name:--font-fraunces) font-bold text-2xl mt-10 mb-3 first:mt-0"
                   style={{ color: HEADER }}
                   {...props}
                 />
               ),
               h3: (props) => (
                 <h3
-                  className="font-serif font-semibold text-xl mt-8 mb-3 first:mt-0"
+                  className="font-(family-name:--font-fraunces) font-semibold text-xl mt-8 mb-3 first:mt-0"
                   style={{ color: HEADER }}
                   {...props}
                 />

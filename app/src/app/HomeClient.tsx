@@ -56,15 +56,15 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
   }, [activeIdx]);
 
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-900 pt-20">
+    <main className="min-h-screen bg-[#F8F7F2] text-gray-900 pt-20">
       {/* NAV — fixed across the top, contents centered to a 6xl gutter so they
           line up with the rest of the page rather than pinning to the viewport edges. */}
-      <nav className="fixed top-0 left-0 right-0 z-40 h-20 border-b border-gray-200 bg-gray-50/95 backdrop-blur">
+      <nav className="fixed top-0 left-0 right-0 z-40 h-20 border-b border-gray-200 bg-[#F8F7F2]/95 backdrop-blur">
         <div className="max-w-6xl mx-auto h-full px-8 flex items-center justify-between">
-          <span className="font-semibold text-base tracking-tight">Tao Sun</span>
-          <div className="flex gap-6 text-sm text-gray-700">
-            <a href="#projects" className="hover:text-gray-900 transition-colors">Projects</a>
-            <a href="#blog" className="hover:text-gray-900 transition-colors">Blog</a>
+          <span className="font-semibold text-base tracking-tight text-[#556B4F]">Tao Sun</span>
+          <div className="flex gap-6 text-sm text-[#556B4F]">
+            <a href="#projects" className="hover:text-[#95A589] transition-colors">Projects</a>
+            <a href="#blog" className="hover:text-[#95A589] transition-colors">Blog</a>
           </div>
         </div>
       </nav>
@@ -72,13 +72,13 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
       {/* HERO — two columns */}
       <section className="flex flex-col md:flex-row md:items-center gap-10 px-8 pt-4 pb-16 max-w-6xl mx-auto min-h-[70vh]">
         <div className="flex-1 flex flex-col justify-center">
-          <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-4">
+          <p className="text-xs font-semibold tracking-widest text-[#95A589] uppercase mb-4">
             Full-Stack Engineer · AI Research
           </p>
-          <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight text-gray-900 mb-6">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight text-[#556B4F] mb-6">
             &ldquo;The only way to do great work is to love what you do.&rdquo;
           </h1>
-          <p className="text-base text-gray-600 mb-8 max-w-lg leading-relaxed">
+          <p className="text-base text-[#2D2A26] mb-8 max-w-lg leading-relaxed">
             I try to live by this quote every day. I believe the best work comes from building things you're genuinely passionate about.
 
             This is where I document my journey creating and shipping projects. Success or failure, each one is a step toward becoming a better engineer, builder, and founder.
@@ -279,7 +279,7 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
                 key={blog.slug}
                 href={`/blogs/${blog.slug}`}
                 data-testid="blog-card"
-                className="group flex flex-col border border-gray-200 bg-white hover:shadow-md hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="group flex flex-col border border-gray-200 bg-white hover:shadow-md hover:border-gray-300 transition-all focus:outline-none focus:ring-2 focus:ring-[#556B4F]"
               >
                 <div
                   className="relative aspect-[4/3] border-b border-gray-200 overflow-hidden"
@@ -300,7 +300,7 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
                       {blog.date}
                     </p>
                   )}
-                  <h3 className="font-serif font-bold text-xl text-gray-900 leading-snug group-hover:text-blue-600 transition-colors">
+                  <h3 className="font-serif font-bold text-xl text-gray-900 leading-snug group-hover:text-[#556B4F] transition-colors">
                     {blog.title}
                   </h3>
                 </div>
@@ -428,8 +428,8 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
 
       <footer className="mt-24 border-t border-gray-200">
         <div className="max-w-6xl mx-auto px-8 py-8 flex items-center justify-between">
-          <span className="font-serif text-gray-900">Tao Sun</span>
-          <div className="flex gap-6 text-xs font-mono text-gray-500">
+          <span className="font-serif text-[#556B4F]">Tao Sun</span>
+          <div className="flex gap-6 text-xs font-mono text-[#556B4F]">
             {socialButtons
               .filter((btn) => btn.kind === 'link')
               .map((btn) => {
@@ -443,7 +443,7 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
                     href={btn.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-gray-900 transition-colors"
+                    className="hover:text-[#95A589] transition-colors"
                   >
                     {label}
                   </a>
