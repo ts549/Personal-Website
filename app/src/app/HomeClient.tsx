@@ -76,12 +76,12 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
             Full-Stack Engineer · AI Research
           </p>
           <h1 className="text-4xl md:text-5xl font-serif font-bold leading-tight text-[#556B4F] mb-6">
-            &ldquo;The only way to do great work is to love what you do.&rdquo;
+            &ldquo;To be a great engineer means to be comfortable becoming a beginner again.&rdquo;
           </h1>
           <p className="text-base text-[#2D2A26] mb-8 max-w-lg leading-relaxed">
-            I try to live by this quote every day. I believe the best work comes from building things you're genuinely passionate about.
+            I believe the best work comes from building things you're genuinely passionate about, even if it means starting from scratch.
 
-            This is where I document my journey creating and shipping projects. Success or failure, each one is a step toward becoming a better engineer, builder, and founder.
+            This is where I document my journey creating and shipping projects. Success or failure, each one is a step towards becoming a better engineer, builder, and founder.
 
             Follow along as I continue turning ideas into reality.
           </p>
@@ -110,7 +110,7 @@ export default function HomeClient({ projects, blogs, experiences, socialButtons
                     type="button"
                     key={btn.slug}
                     aria-label={`Toggle ${btn.slug}`}
-                    aria-expanded={isOpen ? 'true' : 'false'}
+                    aria-expanded={isOpen}
                     onClick={() => handleToggleClick(btn.slug)}
                     className={
                       `w-11 h-11 inline-flex items-center justify-center p-1 cursor-pointer transition-colors ` +
