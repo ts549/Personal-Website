@@ -20,6 +20,10 @@ export interface Project {
   isPaper: boolean;
   /** Public URL to paper.pdf when the card is a paper. */
   pdfUrl?: string;
+  /** GitHub repo URL from github_url.txt, undefined when missing or marked private. */
+  githubUrl?: string;
+  /** True when github_url.txt contains the literal "private". */
+  githubPrivate: boolean;
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -85,6 +89,18 @@ export async function listProjects(): Promise<Project[]> {
       ? `/projects/${slug}/paper.pdf`
       : undefined;
 
+    let githubUrl: string | undefined;
+    let githubPrivate = false;
+    const githubUrlPath = join(dir, "github_url.txt");
+    if (await exists(githubUrlPath)) {
+      const raw = (await readFile(githubUrlPath, "utf-8")).trim();
+      if (raw.toLowerCase() === "private") {
+        githubPrivate = true;
+      } else if (raw) {
+        githubUrl = raw;
+      }
+    }
+
     // For paper cards, strip the "RP_" / "RP" prefix and turn snake_case +
     // CamelCase into spaced words for display.
     const title = isPaper
@@ -106,6 +122,8 @@ export async function listProjects(): Promise<Project[]> {
       videoUrl,
       isPaper,
       pdfUrl,
+      githubUrl,
+      githubPrivate,
     });
   }
 
